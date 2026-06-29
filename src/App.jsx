@@ -99,7 +99,7 @@ function App() {
           <div className="venue-grid">
             <img
               className="venue-photo"
-              src="https://www.castellodioviglio.it/wp-content/uploads/2017/03/slide-home-01.jpg"
+              src="https://glowing-sunshine-bfd123f822.media.strapiapp.com/small_castle_0ab9e08167.jpg"
               alt="Castello di Oviglio illuminé la nuit"
             />
             <div className="venue-info">
