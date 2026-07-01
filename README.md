@@ -1,16 +1,46 @@
-# React + Vite
+# Anaïssia & Antoine — Wedding site
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Single-page wedding site built with Vite + React. Text copy and a couple of
+photos are pulled from a Strapi single type at runtime, with hardcoded
+defaults (`src/content/defaultWeddingContent.js`) shown until that fetch
+resolves — so the site never depends on Strapi being reachable to render.
 
-Currently, two official plugins are available:
+## Development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+npm install
+npm run dev
+```
 
-## React Compiler
+`VITE_STRAPI_URL` (see `.env.development` / `.env.production`) points at the
+Strapi Cloud backend used for content and media.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Managing text content in Strapi
 
-## Expanding the Oxlint configuration
+The frontend fetches `GET {VITE_STRAPI_URL}/api/wedding-page?populate=*`. To
+make this endpoint return real content, create it once in the Strapi admin:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+1. **Content-Type Builder → Create new single type** named `Wedding Page`
+   (API ID: `wedding-page`).
+2. Add these fields (all `Text` unless noted). Any field left empty falls
+   back to the default copy already in the code, so you can fill this in
+   gradually:
+
+   | Field | Notes |
+   |---|---|
+   | `heroEyebrow`, `brideName`, `groomName`, `weddingDate`, `venueNameShort`, `venueLocationShort` | short strings |
+   | `heroImage` | Media (single image) |
+   | `storyEyebrow`, `storyScript`, `storyLede` | `storyScript` supports a `\n` line break |
+   | `programmeEyebrow`, `programmeTitle` | |
+   | `programmeItems` | Component (repeatable) — sub-fields `time`, `title`, `description`, all Text |
+   | `venueEyebrow`, `venueTitle`, `venueLede`, `venuePhotoAlt`, `venueName`, `venueAddress`, `howToReachLabel`, `howToReachText`, `accommodationLabel`, `accommodationText`, `venueContactLabel`, `venueContactText`, `mapUrl`, `mapLinkLabel` | |
+   | `venuePhoto` | Media (single image) |
+   | `rsvpEyebrow`, `rsvpTitle`, `rsvpDeadlineText`, `rsvpButtonLabel`, `rsvpDateLine` | `rsvpTitle` supports a `\n` line break |
+   | `footerScript`, `footerTagline` | |
+
+3. **Settings → Users & Permissions → Roles → Public** — enable `find` on
+   `Wedding Page` so the site can read it without auth.
+4. Fill in the fields and **Publish** the entry.
+
+Long free-text fields can be `Text` (long) instead of short `Text` — the
+frontend renders them as plain strings either way.

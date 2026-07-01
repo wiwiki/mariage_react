@@ -73,7 +73,8 @@ nav a:hover { color: var(--olive); }
   padding: 6rem 1.5rem 4rem;
   background:
     linear-gradient(rgba(43,43,39,0.34), rgba(43,43,39,0.50)),
-    url("https://glowing-sunshine-bfd123f822.media.strapiapp.com/hero_castle_ecd26e4d36.jpg") center/cover no-repeat;
+    var(--hero-image, url("https://glowing-sunshine-bfd123f822.media.strapiapp.com/hero_castle_ecd26e4d36.jpg"))
+      center/cover no-repeat;
   color: var(--cream);
 }
 .hero .eyebrow { color: var(--beige); }

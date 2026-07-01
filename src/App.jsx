@@ -1,4 +1,65 @@
+import { useEffect, useState } from 'react'
+import { fetchWeddingPage, getStrapiMedia } from './lib/strapi'
+import defaultWeddingContent from './content/defaultWeddingContent'
+
+// Overlays whatever the Strapi single type returns onto the default copy,
+// field by field, so an empty/unpublished field just keeps showing the default.
+function mergeContent(base, remote) {
+  if (!remote) return base
+
+  const merged = { ...base }
+
+  for (const key of Object.keys(base)) {
+    const value = remote[key]
+
+    if (key === 'programmeItems') {
+      if (Array.isArray(value) && value.length > 0) {
+        merged.programmeItems = value.map((item) => ({
+          time: item.time ?? '',
+          title: item.title ?? '',
+          description: item.description ?? '',
+        }))
+      }
+    } else if (key === 'heroImage' || key === 'venuePhoto') {
+      const url = getStrapiMedia(value)
+      if (url) merged[key] = url
+    } else if (typeof value === 'string' && value.trim() !== '') {
+      merged[key] = value
+    }
+  }
+
+  return merged
+}
+
+// Renders text with literal "\n" line breaks (used for CMS fields that map
+// onto multi-line headings) as separate lines.
+function Multiline({ text }) {
+  const lines = text.split('\n')
+  return lines.map((line, i) => (
+    <span key={i}>
+      {i > 0 && <br />}
+      {line}
+    </span>
+  ))
+}
+
 function App() {
+  const [content, setContent] = useState(defaultWeddingContent)
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    fetchWeddingPage(controller.signal)
+      .then((remote) => setContent((current) => mergeContent(current, remote)))
+      .catch((err) => {
+        if (err.name !== 'AbortError') {
+          console.error('Falling back to default content — Strapi fetch failed:', err)
+        }
+      })
+
+    return () => controller.abort()
+  }, [])
+
   return (
     <>
       <nav>
@@ -9,80 +70,48 @@ function App() {
       </nav>
 
       {/* HERO */}
-      <header className="hero" id="top">
+      <header className="hero" id="top" style={{ '--hero-image': `url(${content.heroImage})` }}>
         <div className="hero-leaf">❦</div>
-        <p className="eyebrow">Nous nous marions</p>
+        <p className="eyebrow">{content.heroEyebrow}</p>
         <div className="divider"></div>
         <h1>
-          Anaïssia
+          {content.brideName}
           <span className="script amp">&amp;</span>
-          Antoine
+          {content.groomName}
         </h1>
         <div className="meta">
-          <span>19 Juin 2027</span>
-          <span className="venue">Relais del Castello di Oviglio</span>
-          <span className="venue">Piémont, Italie</span>
+          <span>{content.weddingDate}</span>
+          <span className="venue">{content.venueNameShort}</span>
+          <span className="venue">{content.venueLocationShort}</span>
         </div>
       </header>
 
       {/* HISTOIRE */}
       <section className="story center" id="histoire">
         <div className="wrap">
-          <p className="eyebrow">Notre histoire</p>
+          <p className="eyebrow">{content.storyEyebrow}</p>
           <p className="script">
-            Un château français rencontre
-            <br />
-            un dîner d'été italien
+            <Multiline text={content.storyScript} />
           </p>
-          <p className="lede">
-            Entre les collines du Piémont, sous les guirlandes de lumière et les oliviers,
-            nous célébrons notre amour entouré de ceux qui comptent. Une journée romantique,
-            intime et élégante — avec un soupçon d'âme italienne.
-          </p>
+          <p className="lede">{content.storyLede}</p>
         </div>
       </section>
 
       {/* PROGRAMME */}
       <section className="program center" id="programme">
         <div className="wrap">
-          <p className="eyebrow">Le déroulé</p>
-          <h2 className="section-title">Programme de la journée</h2>
+          <p className="eyebrow">{content.programmeEyebrow}</p>
+          <h2 className="section-title">{content.programmeTitle}</h2>
           <div className="timeline">
-            <div className="tl-item">
-              <div className="tl-time">16:00</div>
-              <div className="tl-event">
-                <h3>Cérémonie</h3>
-                <p>Échange des vœux sous les oliviers</p>
+            {content.programmeItems.map((item) => (
+              <div className="tl-item" key={`${item.time}-${item.title}`}>
+                <div className="tl-time">{item.time}</div>
+                <div className="tl-event">
+                  <h3>{item.title}</h3>
+                  <p>{item.description}</p>
+                </div>
               </div>
-            </div>
-            <div className="tl-item">
-              <div className="tl-time">17:30</div>
-              <div className="tl-event">
-                <h3>Aperitivo</h3>
-                <p>Vins du Piémont &amp; bouchées italiennes</p>
-              </div>
-            </div>
-            <div className="tl-item">
-              <div className="tl-time">19:30</div>
-              <div className="tl-event">
-                <h3>Dîner</h3>
-                <p>Longues tables, lin naturel &amp; bougies</p>
-              </div>
-            </div>
-            <div className="tl-item">
-              <div className="tl-time">21:30</div>
-              <div className="tl-event">
-                <h3>Gâteau</h3>
-                <p>Découpe sous les guirlandes lumineuses</p>
-              </div>
-            </div>
-            <div className="tl-item">
-              <div className="tl-time">22:00</div>
-              <div className="tl-event">
-                <h3>Danse</h3>
-                <p>Première danse &amp; fête jusqu'au bout de la nuit</p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -90,44 +119,26 @@ function App() {
       {/* LIEU */}
       <section className="venue-sec center" id="lieu">
         <div className="wrap" style={{ maxWidth: '1000px' }}>
-          <p className="eyebrow">Le lieu</p>
-          <h2 className="section-title">Castello di Oviglio</h2>
-          <p className="lede">
-            Un château royal du Piémont, monument national depuis 1908, niché au cœur des
-            vignobles entre le Monferrato et les Langhe.
-          </p>
+          <p className="eyebrow">{content.venueEyebrow}</p>
+          <h2 className="section-title">{content.venueTitle}</h2>
+          <p className="lede">{content.venueLede}</p>
           <div className="venue-grid">
-            <img
-              className="venue-photo"
-              src="https://glowing-sunshine-bfd123f822.media.strapiapp.com/small_castle_0ab9e08167.jpg"
-              alt="Castello di Oviglio illuminé la nuit"
-            />
+            <img className="venue-photo" src={content.venuePhoto} alt={content.venuePhotoAlt} />
             <div className="venue-info">
-              <h3>Relais del Castello di Oviglio</h3>
-              <p className="addr">Via XXIV Maggio, 1 · 15026 Oviglio (AL) · Italie</p>
+              <h3>{content.venueName}</h3>
+              <p className="addr">{content.venueAddress}</p>
 
-              <span className="label">Comment s'y rendre</span>
-              <p>
-                À mi-chemin entre Asti et Alessandria, dans le Piémont. Aéroports les plus
-                proches : Turin (~1h), Gênes (~1h) et Milan Malpensa (~1h30).
-              </p>
+              <span className="label">{content.howToReachLabel}</span>
+              <p>{content.howToReachText}</p>
 
-              <span className="label">Hébergement</span>
-              <p>
-                Le château dispose de neuf chambres de caractère sur place. Nous vous
-                communiquerons une liste d'hébergements aux alentours.
-              </p>
+              <span className="label">{content.accommodationLabel}</span>
+              <p>{content.accommodationText}</p>
 
-              <span className="label">Contact du lieu</span>
-              <p>(+39) 0131 776166 · info@castellodioviglio.it</p>
+              <span className="label">{content.venueContactLabel}</span>
+              <p>{content.venueContactText}</p>
 
-              <a
-                className="map-link"
-                href="https://www.google.com/maps/search/?api=1&query=Castello+di+Oviglio+Via+XXIV+Maggio+1+15026+Oviglio+AL+Italy"
-                target="_blank"
-                rel="noopener"
-              >
-                Voir sur la carte
+              <a className="map-link" href={content.mapUrl} target="_blank" rel="noopener">
+                {content.mapLinkLabel}
               </a>
             </div>
           </div>
@@ -137,29 +148,24 @@ function App() {
       {/* RSVP */}
       <section className="rsvp" id="rsvp">
         <div className="wrap">
-          <p className="eyebrow">Réponse souhaitée</p>
+          <p className="eyebrow">{content.rsvpEyebrow}</p>
           <h2 className="section-title">
-            Nous serions ravis
-            <br />
-            de votre présence
+            <Multiline text={content.rsvpTitle} />
           </h2>
-          <p>
-            Merci de confirmer votre présence avant le 1<sup>er</sup> mars 2027. Pour toute
-            question concernant l'hébergement ou le voyage, n'hésitez pas à nous écrire.
-          </p>
+          <p>{content.rsvpDeadlineText}</p>
           <a
             className="btn"
             href="mailto:antoine.sifoni@medfarsolutions.com?subject=RSVP%20Mariage%20Ana%C3%AFssia%20%26%20Antoine"
           >
-            Confirmer ma présence
+            {content.rsvpButtonLabel}
           </a>
-          <div className="date-line">19 · 06 · 2027 — Piémont, Italie</div>
+          <div className="date-line">{content.rsvpDateLine}</div>
         </div>
       </section>
 
       <footer>
-        <div className="script">Anaïssia &amp; Antoine</div>
-        <div className="tagline">Romantique · Minimal · Élégant · Intemporel · Italian Soul</div>
+        <div className="script">{content.footerScript}</div>
+        <div className="tagline">{content.footerTagline}</div>
       </footer>
     </>
   )
