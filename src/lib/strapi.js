@@ -1,4 +1,4 @@
-const STRAPI_URL = import.meta.env.VITE_STRAPI_URL
+export const STRAPI_URL = import.meta.env.VITE_STRAPI_URL
 
 // The wedding page content lives in six separate Strapi single types, one per
 // section. Each is fetched independently so a section that isn't published yet

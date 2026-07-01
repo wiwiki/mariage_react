@@ -296,3 +296,121 @@ footer .tagline {
   nav { gap: 1.1rem; }
   .tl-item { grid-template-columns: 70px 1fr; gap: 1rem; }
 }
+
+/* ---------- RSVP FLOW ---------- */
+.wrap.narrow { max-width: 560px; }
+
+.rsvp-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: clamp(4rem, 9vw, 7.5rem) 1.5rem;
+}
+.rsvp-page .wrap { width: 100%; margin: 0 auto; }
+
+.rsvp-back {
+  display: inline-block;
+  margin-bottom: 2rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--olive);
+}
+.rsvp-back:hover { color: var(--olive-dk); }
+
+.code-form {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.4rem;
+}
+.code-form input {
+  width: 100%;
+  max-width: 260px;
+  text-align: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem;
+  letter-spacing: 0.35em;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--beige);
+  background: var(--paper);
+  color: var(--ink);
+}
+.code-form input:focus { outline: none; border-color: var(--olive); }
+
+.form-error {
+  color: #a8433a;
+  font-size: 0.9rem;
+}
+
+.btn {
+  cursor: pointer;
+  font-family: inherit;
+  background: none;
+}
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.guest-form {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  text-align: left;
+}
+.guest-card {
+  border: 1px solid var(--beige);
+  padding: 1.6rem;
+  background: var(--cream);
+}
+.guest-card h3 { font-size: 1.4rem; margin-bottom: 0.8rem; color: var(--charcoal); }
+
+.guest-name-fields {
+  display: flex;
+  gap: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+.guest-name-fields input,
+.meal-fields select,
+.meal-fields textarea,
+.message-field textarea {
+  width: 100%;
+  font-family: 'EB Garamond', serif;
+  font-size: 1rem;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--beige);
+  background: var(--paper);
+  color: var(--ink);
+}
+.guest-name-fields input:disabled,
+.meal-fields select:disabled,
+.meal-fields textarea:disabled,
+.message-field textarea:disabled,
+.code-form input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.attending-toggle {
+  display: flex;
+  gap: 1.6rem;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+.attending-toggle label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.meal-fields { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.4rem; }
+.meal-fields select { margin-bottom: 0.8rem; }
+
+.message-field { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.4rem; }
+.message-field textarea { min-height: 100px; resize: vertical; }
+
+@media (max-width: 500px) {
+  .guest-name-fields { flex-direction: column; }
+}
