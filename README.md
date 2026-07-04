@@ -6,7 +6,7 @@ Vite + React site with two parts:
   Strapi single types at runtime, with hardcoded defaults
   (`src/content/defaultWeddingContent.js`) shown until those fetches resolve —
   so the page never depends on Strapi being reachable to render.
-- **Smart RSVP flow** (`/rsvp`) — guests enter a 6-digit household code, then
+- **Smart RSVP flow** (`/rsvp`) — guests enter a 6-character household code (uppercase letters and digits, e.g. 58FXFP), then
   fill in an editable guest form (attendance, meal choice, allergies, message
   to the couple) or see a locked read-only summary if they already responded.
 
@@ -23,7 +23,7 @@ plain hash link would be read as a route change instead of a same-page jump.
 | Path | Component | Purpose |
 |---|---|---|
 | `/` | `src/pages/LandingPage.jsx` | The wedding page itself |
-| `/rsvp` | `src/pages/rsvp/RsvpCodeEntry.jsx` | 6-digit code entry |
+| `/rsvp` | `src/pages/rsvp/RsvpCodeEntry.jsx` | 6-character code entry |
 | `/rsvp/form` | `src/pages/rsvp/RsvpForm.jsx` | Editable guest form, or a locked summary if already responded |
 | `/rsvp/merci` | `src/pages/rsvp/RsvpConfirmation.jsx` | Confirmation page after submitting |
 

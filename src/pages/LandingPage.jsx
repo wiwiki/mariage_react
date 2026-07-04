@@ -1,47 +1,36 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { fetchWeddingPage, getStrapiMedia } from '../lib/strapi'
-import defaultWeddingContent from '../content/defaultWeddingContent'
+import { useEffect, useRef, useState } from 'react'
+import { useWeddingContent } from '../hooks/useWeddingContent'
+import SplashScreen from '../components/SplashScreen'
+import HeroSection from '../components/sections/HeroSection'
+import StorySection from '../components/sections/StorySection'
+import ProgrammeSection from '../components/sections/ProgrammeSection'
+import VenueSection from '../components/sections/VenueSection'
+import RsvpSection from '../components/sections/RsvpSection'
+import SiteFooter from '../components/sections/SiteFooter'
 
-// Overlays whatever the Strapi single type returns onto the default copy,
-// field by field, so an empty/unpublished field just keeps showing the default.
-function mergeContent(base, remote) {
-  if (!remote) return base
+// The splash never re-shows once content is cached: it stays up at least
+// MIN_MS (so it doesn't blink on fast connections) and at most MAX_MS (past
+// that, the page is revealed with skeletons rather than making guests wait).
+const SPLASH_MIN_MS = 700
+const SPLASH_MAX_MS = 2500
 
-  const merged = { ...base }
+function useSplash(status) {
+  // Only ever true if this mount started without cached content.
+  const startedLoading = useRef(status === 'loading')
+  const [minElapsed, setMinElapsed] = useState(false)
+  const [maxElapsed, setMaxElapsed] = useState(false)
 
-  for (const key of Object.keys(base)) {
-    const value = remote[key]
-
-    if (key === 'programmeItems') {
-      if (Array.isArray(value) && value.length > 0) {
-        merged.programmeItems = value.map((item) => ({
-          time: item.time ?? '',
-          title: item.title ?? '',
-          description: item.description ?? '',
-        }))
-      }
-    } else if (key === 'heroImage' || key === 'venuePhoto') {
-      const url = getStrapiMedia(value)
-      if (url) merged[key] = url
-    } else if (typeof value === 'string' && value.trim() !== '') {
-      merged[key] = value
+  useEffect(() => {
+    if (!startedLoading.current) return
+    const minTimer = setTimeout(() => setMinElapsed(true), SPLASH_MIN_MS)
+    const maxTimer = setTimeout(() => setMaxElapsed(true), SPLASH_MAX_MS)
+    return () => {
+      clearTimeout(minTimer)
+      clearTimeout(maxTimer)
     }
-  }
+  }, [])
 
-  return merged
-}
-
-// Renders text with literal "\n" line breaks (used for CMS fields that map
-// onto multi-line headings) as separate lines.
-function Multiline({ text }) {
-  const lines = text.split('\n')
-  return lines.map((line, i) => (
-    <span key={i}>
-      {i > 0 && <br />}
-      {line}
-    </span>
-  ))
+  return startedLoading.current && !maxElapsed && !(minElapsed && status === 'ready')
 }
 
 // HashRouter owns the URL hash for routing, so plain `href="#histoire"`
@@ -53,24 +42,14 @@ function scrollToSection(e, id) {
 }
 
 function LandingPage() {
-  const [content, setContent] = useState(defaultWeddingContent)
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    fetchWeddingPage(controller.signal)
-      .then((remote) => setContent((current) => mergeContent(current, remote)))
-      .catch((err) => {
-        if (err.name !== 'AbortError') {
-          console.error('Falling back to default content — Strapi fetch failed:', err)
-        }
-      })
-
-    return () => controller.abort()
-  }, [])
+  const { content, status } = useWeddingContent()
+  const splashOpen = useSplash(status)
+  const loading = status === 'loading'
 
   return (
     <>
+      <SplashScreen open={splashOpen} />
+
       <nav>
         <a href="#histoire" onClick={(e) => scrollToSection(e, 'histoire')}>Histoire</a>
         <a href="#programme" onClick={(e) => scrollToSection(e, 'programme')}>Programme</a>
@@ -78,101 +57,12 @@ function LandingPage() {
         <a href="#rsvp" onClick={(e) => scrollToSection(e, 'rsvp')}>RSVP</a>
       </nav>
 
-      {/* HERO */}
-      <header className="hero" id="top" style={{ '--hero-image': `url(${content.heroImage})` }}>
-        <div className="hero-leaf">❦</div>
-        <p className="eyebrow">{content.heroEyebrow}</p>
-        <div className="divider"></div>
-        <h1>
-          {content.brideName}
-          <span className="script amp">&amp;</span>
-          {content.groomName}
-        </h1>
-        <div className="meta">
-          <span>{content.weddingDate}</span>
-          <span className="venue">{content.venueNameShort}</span>
-          <span className="venue">{content.venueLocationShort}</span>
-        </div>
-      </header>
-
-      {/* HISTOIRE */}
-      <section className="story center" id="histoire">
-        <div className="wrap">
-          <p className="eyebrow">{content.storyEyebrow}</p>
-          <p className="script">
-            <Multiline text={content.storyScript} />
-          </p>
-          <p className="lede">{content.storyLede}</p>
-        </div>
-      </section>
-
-      {/* PROGRAMME */}
-      <section className="program center" id="programme">
-        <div className="wrap">
-          <p className="eyebrow">{content.programmeEyebrow}</p>
-          <h2 className="section-title">{content.programmeTitle}</h2>
-          <div className="timeline">
-            {content.programmeItems.map((item) => (
-              <div className="tl-item" key={`${item.time}-${item.title}`}>
-                <div className="tl-time">{item.time}</div>
-                <div className="tl-event">
-                  <h3>{item.title}</h3>
-                  <p>{item.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* LIEU */}
-      <section className="venue-sec center" id="lieu">
-        <div className="wrap" style={{ maxWidth: '1000px' }}>
-          <p className="eyebrow">{content.venueEyebrow}</p>
-          <h2 className="section-title">{content.venueTitle}</h2>
-          <p className="lede">{content.venueLede}</p>
-          <div className="venue-grid">
-            <img className="venue-photo" src={content.venuePhoto} alt={content.venuePhotoAlt} />
-            <div className="venue-info">
-              <h3>{content.venueName}</h3>
-              <p className="addr">{content.venueAddress}</p>
-
-              <span className="label">{content.howToReachLabel}</span>
-              <p>{content.howToReachText}</p>
-
-              <span className="label">{content.accommodationLabel}</span>
-              <p>{content.accommodationText}</p>
-
-              <span className="label">{content.venueContactLabel}</span>
-              <p>{content.venueContactText}</p>
-
-              <a className="map-link" href={content.mapUrl} target="_blank" rel="noopener">
-                {content.mapLinkLabel}
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* RSVP */}
-      <section className="rsvp" id="rsvp">
-        <div className="wrap">
-          <p className="eyebrow">{content.rsvpEyebrow}</p>
-          <h2 className="section-title">
-            <Multiline text={content.rsvpTitle} />
-          </h2>
-          <p>{content.rsvpDeadlineText}</p>
-          <Link className="btn" to="/rsvp">
-            {content.rsvpButtonLabel}
-          </Link>
-          <div className="date-line">{content.rsvpDateLine}</div>
-        </div>
-      </section>
-
-      <footer>
-        <div className="script">{content.footerScript}</div>
-        <div className="tagline">{content.footerTagline}</div>
-      </footer>
+      <HeroSection />
+      <StorySection content={content} loading={loading} />
+      <ProgrammeSection content={content} loading={loading} />
+      <VenueSection content={content} loading={loading} />
+      <RsvpSection content={content} loading={loading} />
+      <SiteFooter content={content} loading={loading} />
     </>
   )
 }

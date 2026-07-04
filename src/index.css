@@ -73,8 +73,7 @@ nav a:hover { color: var(--olive); }
   padding: 6rem 1.5rem 4rem;
   background:
     linear-gradient(rgba(43,43,39,0.34), rgba(43,43,39,0.50)),
-    var(--hero-image, url("https://glowing-sunshine-bfd123f822.media.strapiapp.com/hero_castle_ecd26e4d36.jpg"))
-      center/cover no-repeat;
+    url("./assets/hero-castle.jpg") center/cover no-repeat;
   color: var(--cream);
 }
 .hero .eyebrow { color: var(--beige); }
@@ -180,6 +179,11 @@ section { padding: clamp(4rem, 9vw, 7.5rem) 1.5rem; }
   gap: 3rem;
   margin-top: 3rem;
   align-items: center;
+}
+.venue-photo-frame {
+  width: 100%;
+  height: 100%;
+  min-height: 340px;
 }
 .venue-photo {
   width: 100%;
@@ -300,6 +304,25 @@ footer .tagline {
 /* ---------- RSVP FLOW ---------- */
 .wrap.narrow { max-width: 560px; }
 
+.rsvp-card {
+  background: #fffdf9;
+  border: 1px solid rgba(221, 212, 194, 0.8);
+  box-shadow: 0 14px 44px rgba(43, 43, 39, 0.08);
+  padding: clamp(2rem, 6vw, 3rem) clamp(1.4rem, 5vw, 2.6rem);
+}
+
+/* Button variant for light backgrounds — the base .btn (sage border, cream
+   text) is designed for the dark sections and disappears on paper. */
+.btn-light {
+  border-color: var(--olive);
+  color: var(--olive);
+}
+.btn-light:hover:not(:disabled) {
+  background: var(--olive);
+  color: var(--cream);
+}
+.rsvp-card > .btn { margin-top: 2.2rem; }
+
 .rsvp-page {
   min-height: 100vh;
   display: flex;
@@ -339,6 +362,8 @@ footer .tagline {
   color: var(--ink);
 }
 .code-form input:focus { outline: none; border-color: var(--olive); }
+.code-label { width: 100%; max-width: 260px; }
+.code-label input { max-width: none; }
 
 .form-error {
   color: #a8433a;
@@ -362,20 +387,56 @@ footer .tagline {
 .guest-card {
   border: 1px solid var(--beige);
   padding: 1.6rem;
-  background: var(--cream);
+  background: #fffdf9;
+  box-shadow: 0 8px 28px rgba(43, 43, 39, 0.05);
 }
-.guest-card h3 { font-size: 1.4rem; margin-bottom: 0.8rem; color: var(--charcoal); }
+/* Visually hidden but accessible (and focusable for the custom radios) */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Olive (not sage) for label text: sage on the white card fails WCAG AA
+   contrast; sage remains for decorative use on dark backgrounds. */
+.guest-form .label,
+.code-form .label {
+  display: block;
+  font-size: 0.66rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--olive);
+  margin-bottom: 0.35rem;
+}
+
+/* Guest cards are fieldsets — reset the browser legend/fieldset chrome */
+fieldset.guest-card { margin: 0; min-width: 0; }
+.guest-card legend {
+  float: left;
+  width: 100%;
+  padding: 0;
+  margin-bottom: 0.9rem;
+}
+.guest-card legend + * { clear: both; }
 
 .guest-name-fields {
   display: flex;
   gap: 0.8rem;
   margin-bottom: 0.8rem;
 }
+.text-field { flex: 1; display: block; }
 .guest-name-fields input,
-.meal-fields select,
-.meal-fields textarea,
+.guest-card select,
+.guest-card textarea,
 .message-field textarea {
   width: 100%;
+  min-height: 44px;
   font-family: 'EB Garamond', serif;
   font-size: 1rem;
   padding: 0.6rem 0.8rem;
@@ -383,34 +444,217 @@ footer .tagline {
   background: var(--paper);
   color: var(--ink);
 }
+.guest-name-fields input:focus-visible,
+.guest-card select:focus-visible,
+.guest-card textarea:focus-visible,
+.message-field textarea:focus-visible,
+.code-form input:focus-visible {
+  outline: 2px solid var(--olive);
+  outline-offset: 1px;
+  border-color: var(--olive);
+}
+.guest-name-fields input[aria-invalid='true'],
+.guest-card select[aria-invalid='true'] {
+  border-color: #a8433a;
+}
 .guest-name-fields input:disabled,
-.meal-fields select:disabled,
-.meal-fields textarea:disabled,
+.guest-card select:disabled,
+.guest-card textarea:disabled,
 .message-field textarea:disabled,
 .code-form input:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.attending-toggle {
+.field-block { margin-top: 1rem; }
+
+/* Présent / Absent segmented toggle — hidden native radios drive it */
+.segmented {
   display: flex;
-  gap: 1.6rem;
-  margin-bottom: 1rem;
-  font-size: 0.95rem;
+  border: 1px solid var(--beige);
 }
-.attending-toggle label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.segmented label {
+  flex: 1;
+  position: relative;
+  display: block;
   cursor: pointer;
 }
+.segmented label + label { border-left: 1px solid var(--beige); }
+.segmented span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 0.5rem;
+  font-family: 'EB Garamond', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink);
+  transition: background 0.25s, color 0.25s;
+}
+.segmented input:checked + span {
+  background: var(--olive);
+  color: var(--cream);
+}
+.segmented input:focus-visible + span {
+  box-shadow: inset 0 0 0 2px var(--charcoal);
+}
+.segmented input:disabled + span { cursor: not-allowed; opacity: 0.7; }
 
-.meal-fields { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.4rem; }
-.meal-fields select { margin-bottom: 0.8rem; }
+/* Adulte / Enfant / Bébé icon radio — hidden native radios drive it */
+.age-picker {
+  display: flex;
+  gap: 0.6rem;
+}
+.age-option {
+  flex: 1;
+  position: relative;
+  display: block;
+  cursor: pointer;
+}
+.age-option-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.7rem 0.4rem 0.55rem;
+  border: 1px solid var(--beige);
+  color: var(--olive);
+  transition: border-color 0.25s, color 0.25s, background 0.25s;
+}
+.age-option-inner > span {
+  font-family: 'EB Garamond', serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.age-option input:checked + .age-option-inner {
+  border-color: var(--olive);
+  color: var(--olive-dk);
+  background: rgba(92, 107, 76, 0.09);
+}
+.age-option input:focus-visible + .age-option-inner {
+  box-shadow: 0 0 0 2px var(--paper), 0 0 0 4px var(--olive);
+}
+.age-option input:disabled + .age-option-inner { cursor: not-allowed; opacity: 0.7; }
+
+.char-count {
+  display: block;
+  text-align: right;
+  font-size: 0.7rem;
+  color: var(--olive);
+  margin-top: 0.2rem;
+}
 
 .message-field { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.4rem; }
 .message-field textarea { min-height: 100px; resize: vertical; }
 
+/* Keyboard focus ring for buttons and links across the RSVP flow */
+.btn:focus-visible,
+.rsvp-back:focus-visible,
+nav a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
 @media (max-width: 500px) {
   .guest-name-fields { flex-direction: column; }
+}
+
+/* ---------- LOADING SKELETONS ---------- */
+.skeleton {
+  display: inline-block;
+  max-width: 100%;
+  height: 1em;
+  vertical-align: middle;
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    rgba(92, 107, 76, 0.10) 25%,
+    rgba(92, 107, 76, 0.20) 50%,
+    rgba(92, 107, 76, 0.10) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+.skeleton-dark {
+  background: linear-gradient(
+    90deg,
+    rgba(239, 233, 221, 0.10) 25%,
+    rgba(239, 233, 221, 0.22) 50%,
+    rgba(239, 233, 221, 0.10) 75%
+  );
+  background-size: 200% 100%;
+}
+.skeleton-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55em;
+  align-items: center;
+}
+.venue-info .skeleton-text { align-items: flex-start; }
+
+.img-frame { position: relative; overflow: hidden; }
+.img-frame img {
+  display: block;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.img-frame img.is-loaded { opacity: 1; }
+.skeleton-fill {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ---------- SPLASH SCREEN ---------- */
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper);
+  opacity: 1;
+  transition: opacity 0.6s ease;
+}
+.splash-out { opacity: 0; pointer-events: none; }
+.splash-inner { text-align: center; color: var(--olive); }
+.splash-leaf { font-size: 1.6rem; margin-bottom: 1.2rem; opacity: 0.85; }
+.splash-monogram {
+  font-size: clamp(2.6rem, 8vw, 4rem);
+  color: var(--olive-dk);
+  letter-spacing: 0.06em;
+}
+.splash-bar {
+  width: 120px;
+  height: 1px;
+  margin: 1.6rem auto 0;
+  background: rgba(92, 107, 76, 0.18);
+  overflow: hidden;
+}
+.splash-bar span {
+  display: block;
+  width: 40%;
+  height: 100%;
+  background: var(--olive);
+  animation: splash-sweep 1.2s ease-in-out infinite;
+}
+@keyframes splash-sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton, .splash-bar span { animation: none; }
+  .splash { transition: none; }
 }

@@ -1,14 +1,11 @@
-// Fallback copy — used until the Strapi "Wedding Page" single type responds,
-// and for any field left empty there. Keeps the site readable with zero backend.
-const defaultWeddingContent = {
-  heroEyebrow: 'Nous nous marions',
-  brideName: 'Anaïssia',
-  groomName: 'Antoine',
-  weddingDate: '19 Juin 2027',
-  venueNameShort: 'Relais del Castello di Oviglio',
-  venueLocationShort: 'Piémont, Italie',
-  heroImage: 'https://glowing-sunshine-bfd123f822.media.strapiapp.com/hero_castle_ecd26e4d36.jpg',
+import venueCastle from '../assets/venue-castle.jpg'
 
+// Fallback copy — used until the Strapi section single types respond, and for
+// any field left empty there. Keeps the site readable with zero backend.
+// The hero section is fully static (see HeroSection.jsx) so it has no entry.
+// Default images are bundled from src/assets (not hotlinked to Strapi media)
+// so they keep working even if files are removed from the media library.
+const defaultWeddingContent = {
   storyEyebrow: 'Notre histoire',
   storyScript: "Un château français rencontre\nun dîner d'été italien",
   storyLede:
@@ -31,7 +28,7 @@ const defaultWeddingContent = {
   venueLede:
     'Un château royal du Piémont, monument national depuis 1908, niché au cœur des ' +
     'vignobles entre le Monferrato et les Langhe.',
-  venuePhoto: 'https://glowing-sunshine-bfd123f822.media.strapiapp.com/small_castle_0ab9e08167.jpg',
+  venuePhoto: venueCastle,
   venuePhotoAlt: 'Castello di Oviglio illuminé la nuit',
   venueName: 'Relais del Castello di Oviglio',
   venueAddress: 'Via XXIV Maggio, 1 · 15026 Oviglio (AL) · Italie',
