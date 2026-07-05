@@ -135,6 +135,52 @@ section { padding: clamp(4rem, 9vw, 7.5rem) 1.5rem; }
   margin-bottom: 1.5rem;
 }
 
+/* Editorial two-column story: centered script heading, then narrative text
+   (left-aligned for readability) beside the couple photo. */
+.story-wrap { max-width: 1040px; }
+.story-script { margin-bottom: 3rem; }
+
+.story-body {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: start;
+  text-align: left;
+}
+.story-text > p {
+  font-size: 1.08rem;
+  line-height: 1.8;
+  color: var(--ink);
+  margin-bottom: 1.15rem;
+}
+.story-text > p:last-child { margin-bottom: 0; }
+
+.story-media {
+  position: sticky;
+  top: 6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.story-photo-frame {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border: 1px solid var(--beige);
+  box-shadow: 0 16px 44px rgba(43, 43, 39, 0.12);
+}
+.story-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.92);
+}
+
+@media (max-width: 760px) {
+  .story-body { grid-template-columns: 1fr; gap: 2.2rem; }
+  .story-media { position: static; order: -1; max-width: 420px; margin: 0 auto; }
+  .story-text { text-align: left; }
+}
+
 /* ---------- PROGRAM TIMELINE ---------- */
 .program {
   background: var(--olive);

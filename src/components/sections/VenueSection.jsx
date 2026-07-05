@@ -9,12 +9,18 @@ function VenueSection({ content, loading }) {
         <h2 className="section-title">{loading ? <Skeleton width="16ch" /> : content.venueTitle}</h2>
         <p className="lede">{loading ? <SkeletonText lines={2} /> : content.venueLede}</p>
         <div className="venue-grid">
-          <SmartImage
-            className="venue-photo-frame"
-            imgClassName="venue-photo"
-            src={content.venuePhoto}
-            alt={content.venuePhotoAlt}
-          />
+          {loading ? (
+            <div className="venue-photo-frame img-frame">
+              <span className="skeleton skeleton-fill" aria-hidden="true" />
+            </div>
+          ) : (
+            <SmartImage
+              className="venue-photo-frame"
+              imgClassName="venue-photo"
+              src={content.venuePhoto}
+              alt={content.venuePhotoAlt}
+            />
+          )}
           <div className="venue-info">
             {loading ? (
               <>

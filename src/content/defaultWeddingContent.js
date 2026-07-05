@@ -1,4 +1,5 @@
-import venueCastle from '../assets/venue-castle.jpg'
+import venueCastle from '../assets/venue-fallback.png'
+import coupleStory from '../assets/couple-story.jpg'
 
 // Fallback copy — used until the Strapi section single types respond, and for
 // any field left empty there. Keeps the site readable with zero backend.
@@ -7,11 +8,32 @@ import venueCastle from '../assets/venue-castle.jpg'
 // so they keep working even if files are removed from the media library.
 const defaultWeddingContent = {
   storyEyebrow: 'Notre histoire',
-  storyScript: "Un château français rencontre\nun dîner d'été italien",
+  storyScript: 'Rencontrés à Montréal,\nunis en Italie',
+  // Paragraphs are separated by a blank line (\n\n) and rendered as separate
+  // <p>. If Strapi later sends a long-text value, the same split applies.
   storyLede:
-    "Entre les collines du Piémont, sous les guirlandes de lumière et les oliviers, " +
-    'nous célébrons notre amour entouré de ceux qui comptent. Une journée romantique, ' +
-    "intime et élégante — avec un soupçon d'âme italienne.",
+    'C’est en Italie, plus précisément dans le Piémont, que nous avons choisi de ' +
+    'célébrer notre mariage avec vous, entourés des personnes qui nous aiment et qui ' +
+    'font partie de notre histoire.\n\n' +
+    'Antoine est né et a grandi au Québec, Anaïssia est née et a grandi dans le sud de ' +
+    'la France. Deux parcours, deux cultures, deux histoires qui se sont rencontrées à ' +
+    'Montréal en 2018, où nous avons construit une grande partie de notre vie. Issues de ' +
+    'familles aux racines internationales, et avec une partie de nos ancêtres venant ' +
+    'd’Italie, il semblait presque évident que l’union Sifoni et Franca devait se ' +
+    'célébrer ici.\n\n' +
+    'Nous savons que ce mariage représentera un voyage pour la majorité d’entre vous, et ' +
+    'nous vous serons éternellement reconnaissants de faire le déplacement pour partager ' +
+    'avec nous ce moment si précieux. C’est ici, entre une partie de nos racines, nos ' +
+    'histoires et tous ceux qui nous accompagnent, que nous avons choisi d’écrire le ' +
+    'prochain chapitre de notre vie.\n\n' +
+    'Le Castello di Oviglio, témoin du temps depuis le XIVᵉ siècle, a traversé les époques ' +
+    'en conservant tout son charme et son authenticité. Préparez-vous à une soirée ' +
+    'romantique, faite de belles surprises, de gastronomie italienne, de rires… et ' +
+    'probablement de quelques larmes.',
+  // Strapi field `pictureCouple` is an array of images; a single bundled photo
+  // is the fallback when it's absent/empty.
+  pictureCouple: [coupleStory],
+  storyImageAlt: 'Anaïssia & Antoine',
 
   programmeEyebrow: 'Le déroulé',
   programmeTitle: 'Programme de la journée',
@@ -29,7 +51,7 @@ const defaultWeddingContent = {
     'Un château royal du Piémont, monument national depuis 1908, niché au cœur des ' +
     'vignobles entre le Monferrato et les Langhe.',
   venuePhoto: venueCastle,
-  venuePhotoAlt: 'Castello di Oviglio illuminé la nuit',
+  venuePhotoAlt: 'Le Castello di Oviglio et son parc',
   venueName: 'Relais del Castello di Oviglio',
   venueAddress: 'Via XXIV Maggio, 1 · 15026 Oviglio (AL) · Italie',
   howToReachLabel: "Comment s'y rendre",
