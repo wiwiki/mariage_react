@@ -52,6 +52,12 @@ function mergeContent(base, remote) {
           description: item.description ?? '',
         }))
       }
+    } else if (key === 'pictureCouple') {
+      // Array of media objects — resolve each, keep the default if none valid.
+      if (Array.isArray(value) && value.length > 0) {
+        const urls = value.map((media) => getStrapiMedia(media)).filter(Boolean)
+        if (urls.length > 0) merged.pictureCouple = urls
+      }
     } else if (key === 'venuePhoto') {
       const url = getStrapiMedia(value)
       if (url) merged[key] = url
