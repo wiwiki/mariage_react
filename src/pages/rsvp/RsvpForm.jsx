@@ -117,6 +117,14 @@ function AttendanceToggle({ index, value, onChange, disabled }) {
   )
 }
 
+// A name with "&" is a couple's first names (e.g. "Félix & Clémence"), where
+// "Famille …" reads wrong — show it as-is. A surname (e.g. "Sifoni") gets the
+// "Famille" prefix.
+function formatHouseholdHeading(name) {
+  if (!name) return 'Votre invitation'
+  return name.includes('&') ? name : `Famille ${name}`
+}
+
 function RsvpForm() {
   const navigate = useNavigate()
   const [session, setSession] = useState(undefined)
@@ -201,7 +209,9 @@ function RsvpForm() {
       <div className="wrap narrow">
         <Link className="rsvp-back" to="/">‹ Retour</Link>
         <p className="eyebrow center">Réponse souhaitée</p>
-        <h1 className="section-title center">{session.invitation.householdName}</h1>
+        <h1 className="section-title center">
+          {formatHouseholdHeading(session.invitation.householdName)}
+        </h1>
         {readOnly && (
           <p className="lede center">
             Merci, votre réponse a déjà été enregistrée

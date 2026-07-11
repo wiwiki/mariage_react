@@ -512,7 +512,7 @@ fieldset.guest-card { margin: 0; min-width: 0; }
   cursor: not-allowed;
 }
 
-.field-block { margin-top: 1rem; }
+.field-block { display: block; margin-top: 1rem; }
 
 /* Présent / Absent segmented toggle — hidden native radios drive it */
 .segmented {
@@ -556,13 +556,15 @@ fieldset.guest-card { margin: 0; min-width: 0; }
 .age-option {
   flex: 1;
   position: relative;
-  display: block;
+  display: flex;
   cursor: pointer;
 }
 .age-option-inner {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 0.25rem;
   padding: 0.7rem 0.4rem 0.55rem;
   border: 1px solid var(--beige);
@@ -574,6 +576,14 @@ fieldset.guest-card { margin: 0; min-width: 0; }
   font-size: 0.62rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
+}
+.age-option-inner .age-hint {
+  margin-top: 0.15rem;
+  font-size: 0.56rem;
+  letter-spacing: 0.08em;
+  text-transform: none;
+  color: var(--sage);
+  text-align: center;
 }
 .age-option input:checked + .age-option-inner {
   border-color: var(--olive);
