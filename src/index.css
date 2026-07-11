@@ -430,6 +430,11 @@ footer .tagline {
   gap: 2rem;
   text-align: left;
 }
+/* Reveals the next guest card — dashed to read as an empty slot */
+.add-guest {
+  border-style: dashed;
+  letter-spacing: 0.18em;
+}
 .guest-card {
   border: 1px solid var(--beige);
   padding: 1.6rem;

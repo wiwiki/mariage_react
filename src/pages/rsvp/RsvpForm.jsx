@@ -52,18 +52,10 @@ function isUsed(slot) {
   return Boolean(slot.firstName.trim() || slot.lastName.trim() || slot.attending !== null)
 }
 
-// A slot is "complete" when it has both names and an attendance answer —
-// completing a card is what reveals the next empty one.
-function isComplete(slot) {
-  return Boolean(slot.firstName.trim() && slot.lastName.trim() && slot.attending !== null)
-}
-
-// Progressive disclosure: prefilled cards are always shown, then one empty
-// card at a time — the next appears only once the previous card is complete.
-function countVisibleSlots(slots, prefilledCount) {
-  let visible = Math.min(Math.max(prefilledCount, 1), slots.length)
-  while (visible < slots.length && isComplete(slots[visible - 1])) visible++
-  return visible
+// Prefilled cards (plus at least one) are shown right away; the remaining
+// empty slots are revealed one by one via the "Ajouter un invité" button.
+function initialVisibleCount(slots, prefilledCount) {
+  return Math.min(Math.max(prefilledCount, 1), slots.length)
 }
 
 // Returns null, or { message, index, field } pointing at the offending card
@@ -121,6 +113,7 @@ function RsvpForm() {
   const navigate = useNavigate()
   const [session, setSession] = useState(undefined)
   const [slots, setSlots] = useState([])
+  const [visibleCount, setVisibleCount] = useState(1)
   const [message, setMessage] = useState('')
   const [error, setError] = useState(null)
   const [submitting, setSubmitting] = useState(false)
@@ -133,19 +126,32 @@ function RsvpForm() {
       return
     }
     const locked = stored.invitation.rsvpStatus !== 'pending'
+    const builtSlots = buildSlots(stored.invitation, stored.guests, locked)
     setSession(stored)
-    setSlots(buildSlots(stored.invitation, stored.guests, locked))
+    setSlots(builtSlots)
+    setVisibleCount(locked ? builtSlots.length : initialVisibleCount(builtSlots, stored.guests.length))
     setMessage(stored.invitation.messageToCouple || '')
   }, [navigate])
 
   if (!session) return null
 
   const readOnly = session.invitation.rsvpStatus !== 'pending'
-  const visibleCount = readOnly ? slots.length : countVisibleSlots(slots, session.guests.length)
+  const canAddGuest = !readOnly && visibleCount < slots.length
 
   function updateSlot(index, patch) {
     setError(null)
     setSlots((prev) => prev.map((slot, i) => (i === index ? { ...slot, ...patch } : slot)))
+  }
+
+  function addGuest() {
+    const nextIndex = visibleCount
+    setVisibleCount((prev) => Math.min(prev + 1, slots.length))
+    setTimeout(() => {
+      const card = cardRefs.current[nextIndex]
+      if (!card) return
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      card.querySelector('input[type="text"]')?.focus({ preventScroll: true })
+    }, 50)
   }
 
   function focusInvalidField(invalid) {
@@ -312,6 +318,12 @@ function RsvpForm() {
               )}
             </fieldset>
           ))}
+
+          {canAddGuest && (
+            <button className="btn btn-light add-guest" type="button" onClick={addGuest}>
+              + Ajouter un invité
+            </button>
+          )}
 
           <label className="message-field">
             <span className="label">Message au couple (optionnel)</span>
