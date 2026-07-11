@@ -35,16 +35,16 @@ function BabyIcon() {
 }
 
 const OPTIONS = [
-  { value: 'adult', label: 'Adulte', Icon: AdultIcon },
-  { value: 'child', label: 'Enfant', Icon: ChildIcon },
-  { value: 'baby', label: 'Bébé', Icon: BabyIcon },
+  { value: 'adult', label: 'Adulte', hint: '', Icon: AdultIcon },
+  { value: 'child', label: 'Enfant', hint: '3 à 8 ans', Icon: ChildIcon },
+  { value: 'baby', label: 'Bébé', hint: 'moins de 3 ans', Icon: BabyIcon },
 ]
 
 // `name` must be unique per guest so each card is its own radio group.
 function AgeGroupPicker({ name, value, onChange, disabled }) {
   return (
     <div className="age-picker">
-      {OPTIONS.map(({ value: option, label, Icon }) => (
+      {OPTIONS.map(({ value: option, label, hint, Icon }) => (
         <label className="age-option" key={option}>
           <input
             className="visually-hidden"
@@ -58,6 +58,7 @@ function AgeGroupPicker({ name, value, onChange, disabled }) {
           <span className="age-option-inner">
             <Icon />
             <span>{label}</span>
+            {hint && <span className="age-hint">{hint}</span>}
           </span>
         </label>
       ))}

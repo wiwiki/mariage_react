@@ -201,7 +201,11 @@ function RsvpForm() {
       <div className="wrap narrow">
         <Link className="rsvp-back" to="/">‹ Retour</Link>
         <p className="eyebrow center">Réponse souhaitée</p>
-        <h1 className="section-title center">{session.invitation.householdName}</h1>
+        <h1 className="section-title center">
+          {session.invitation.householdName
+            ? `Famille ${session.invitation.householdName}`
+            : 'Votre invitation'}
+        </h1>
         {readOnly && (
           <p className="lede center">
             Merci, votre réponse a déjà été enregistrée
