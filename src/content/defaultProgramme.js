@@ -1,10 +1,9 @@
-// Fallback programme copy — used until the Strapi `programme` single type
-// responds, and for any field left empty there. Mirrors the published Strapi
+// Fallback programme schedule — used until the Strapi `programme` single
+// type responds, or if it's unreachable/empty. Mirrors the published Strapi
 // content as of 2026-07-12 so an unreachable backend still shows the real
-// schedule. Every other section is hardcoded in its component.
+// schedule. The section heading (and every other section) is hardcoded in
+// its component.
 const defaultProgramme = {
-  programmeEyebrow: 'Le déroulé',
-  programmeTitle: 'Programme de la journée',
   programmeItems: [
     { time: '17:00', title: 'Cérémonie', description: 'Échange des vœux sous les arbres' },
     { time: '18:00', title: 'Aperitivo', description: 'Vins du Piémont & bouchées italiennes' },
