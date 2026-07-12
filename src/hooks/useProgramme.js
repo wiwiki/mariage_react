@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
-import { fetchWeddingPage, getStrapiMedia } from '../lib/strapi'
-import defaultWeddingContent from '../content/defaultWeddingContent'
+import { fetchProgramme } from '../lib/strapi'
+import defaultProgramme from '../content/defaultProgramme'
 
-// Merged Strapi content is cached in sessionStorage (plus this module-level
-// mirror) so navigating between the landing page and the RSVP flow doesn't
-// refetch the six section endpoints on every mount. The TTL keeps content
-// edits in Strapi from being invisible for a whole browsing session.
-const CACHE_KEY = 'wedding-content-v1'
+// Fetched programme content is cached in sessionStorage (plus this
+// module-level mirror) so navigating between the landing page and the RSVP
+// flow doesn't refetch on every mount. The TTL keeps content edits in Strapi
+// from being invisible for a whole browsing session.
+const CACHE_KEY = 'programme-content-v1'
 const CACHE_TTL_MS = 10 * 60 * 1000
 
 let memoryCache = null
@@ -41,27 +41,17 @@ function mergeContent(base, remote) {
 
   const merged = { ...base }
 
-  for (const key of Object.keys(base)) {
-    const value = remote[key]
+  if (Array.isArray(remote.programmeItems) && remote.programmeItems.length > 0) {
+    merged.programmeItems = remote.programmeItems.map((item) => ({
+      time: item.time ?? '',
+      title: item.title ?? '',
+      description: item.description ?? '',
+    }))
+  }
 
-    if (key === 'programmeItems') {
-      if (Array.isArray(value) && value.length > 0) {
-        merged.programmeItems = value.map((item) => ({
-          time: item.time ?? '',
-          title: item.title ?? '',
-          description: item.description ?? '',
-        }))
-      }
-    } else if (key === 'pictureCouple') {
-      // Array of media objects — resolve each, keep the default if none valid.
-      if (Array.isArray(value) && value.length > 0) {
-        const urls = value.map((media) => getStrapiMedia(media)).filter(Boolean)
-        if (urls.length > 0) merged.pictureCouple = urls
-      }
-    } else if (key === 'venuePhoto') {
-      const url = getStrapiMedia(value)
-      if (url) merged[key] = url
-    } else if (typeof value === 'string' && value.trim() !== '') {
+  for (const key of ['programmeEyebrow', 'programmeTitle']) {
+    const value = remote[key]
+    if (typeof value === 'string' && value.trim() !== '') {
       merged[key] = value
     }
   }
@@ -72,12 +62,12 @@ function mergeContent(base, remote) {
 // status: 'loading' while the first fetch is in flight (skeletons/splash),
 // 'ready' once content is settled — either real CMS content, cached content,
 // or the defaults if the backend was unreachable.
-export function useWeddingContent() {
+export function useProgramme() {
   const [state, setState] = useState(() => {
     const cached = loadCachedContent()
     return cached
-      ? { content: mergeContent(defaultWeddingContent, cached), status: 'ready' }
-      : { content: defaultWeddingContent, status: 'loading' }
+      ? { content: mergeContent(defaultProgramme, cached), status: 'ready' }
+      : { content: defaultProgramme, status: 'loading' }
   })
 
   useEffect(() => {
@@ -85,16 +75,16 @@ export function useWeddingContent() {
 
     const controller = new AbortController()
 
-    fetchWeddingPage(controller.signal)
+    fetchProgramme(controller.signal)
       .then((remote) => {
         if (remote && Object.keys(remote).length > 0) {
           saveCachedContent(remote)
         }
-        setState({ content: mergeContent(defaultWeddingContent, remote), status: 'ready' })
+        setState({ content: mergeContent(defaultProgramme, remote), status: 'ready' })
       })
       .catch((err) => {
         if (err.name !== 'AbortError') {
-          console.error('Falling back to default content — Strapi fetch failed:', err)
+          console.error('Falling back to default programme — Strapi fetch failed:', err)
           setState((current) => ({ ...current, status: 'ready' }))
         }
       })

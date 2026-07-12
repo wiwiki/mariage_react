@@ -2,10 +2,11 @@
 
 Vite + React site with two parts:
 
-- **Landing page** (`/`) — text copy and a couple of photos are pulled from six
-  Strapi single types at runtime, with hardcoded defaults
-  (`src/content/defaultWeddingContent.js`) shown until those fetches resolve —
-  so the page never depends on Strapi being reachable to render.
+- **Landing page** (`/`) — all text and photos are hardcoded in the section
+  components (the copy is final), except the **programme** section, which is
+  pulled from the Strapi `programme` single type at runtime with a hardcoded
+  fallback (`src/content/defaultProgramme.js`) — so the page never depends on
+  Strapi being reachable to render.
 - **Smart RSVP flow** (`/rsvp`) — guests enter a 6-character household code (uppercase letters and digits, e.g. 58FXFP), then
   fill in an editable guest form (attendance, meal choice, allergies, message
   to the couple) or see a locked read-only summary if they already responded.
@@ -39,25 +40,23 @@ Strapi backend used for content, media, and the RSVP API.
 
 ## Managing text content in Strapi
 
-The frontend fetches from **six single types**, one per landing-page section,
-each at `GET {VITE_STRAPI_URL}/api/<slug>?populate=*`. Any field left empty
-in any of them falls back to the default copy in
-`src/content/defaultWeddingContent.js`, and one section failing/being
-unpublished doesn't affect the others — so this can be filled in gradually,
-type by type.
+Only the **programme** section is still CMS-driven. The frontend fetches one
+single type at `GET {VITE_STRAPI_URL}/api/programme?populate=*`; any field
+left empty falls back to the default copy in
+`src/content/defaultProgramme.js`.
 
 | Single type (API ID) | Fields |
 |---|---|
-| `hero-banner` | `heroEyebrow`, `brideName`, `groomName`, `weddingDate`, `venueNameShort`, `venueLocationShort`, `heroImage` (media) |
-| `story` | `storyEyebrow`, `storyScript` (supports a `\n` line break), `storyLede` |
 | `programme` | `programmeEyebrow`, `programmeTitle`, `programmeItems` (repeatable component — `time`, `title`, `description`) |
-| `venue` | `venueEyebrow`, `venueTitle`, `venueLede`, `venuePhotoAlt`, `venueName`, `venueAddress`, `howToReachLabel`, `howToReachText`, `accommodationLabel`, `accommodationText`, `venueContactLabel`, `venueContactText`, `mapUrl`, `mapLinkLabel`, `venuePhoto` (media) |
-| `rsvp` | `rsvpEyebrow`, `rsvpTitle` (supports a `\n` line break), `rsvpDeadlineText`, `rsvpButtonLabel`, `rsvpDateLine` |
-| `footer` | `footerScript`, `footerTagline` |
 
-For each single type: enable `find` under **Settings → Users & Permissions →
-Roles → Public** so the site can read it without auth, fill in the fields,
-and **Publish** the entry.
+The `programme` single type must stay published with `find` enabled under
+**Settings → Users & Permissions → Roles → Public** so the site can read it
+without auth.
+
+Every other section (hero, story, venue, RSVP intro, footer) is hardcoded in
+its component under `src/components/sections/` — editing that copy is a code
+change, not a Strapi edit. The other Strapi single types (`hero-banner`,
+`story`, `venue`, `rsvp`, `footer`) are no longer read by the site.
 
 ## RSVP flow
 
