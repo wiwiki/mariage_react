@@ -34,8 +34,9 @@ function saveCachedContent(data) {
   }
 }
 
-// Overlays whatever Strapi returns onto the default copy, field by field, so
-// an empty/unpublished field just keeps showing the default.
+// Overlays the Strapi schedule onto the default copy, so an empty or
+// unpublished entry just keeps showing the default items. The section
+// heading is hardcoded in ProgrammeSection, so only the items matter here.
 function mergeContent(base, remote) {
   if (!remote) return base
 
@@ -47,13 +48,6 @@ function mergeContent(base, remote) {
       title: item.title ?? '',
       description: item.description ?? '',
     }))
-  }
-
-  for (const key of ['programmeEyebrow', 'programmeTitle']) {
-    const value = remote[key]
-    if (typeof value === 'string' && value.trim() !== '') {
-      merged[key] = value
-    }
   }
 
   return merged

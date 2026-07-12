@@ -47,7 +47,7 @@ left empty falls back to the default copy in
 
 | Single type (API ID) | Fields |
 |---|---|
-| `programme` | `programmeEyebrow`, `programmeTitle`, `programmeItems` (repeatable component — `time`, `title`, `description`) |
+| `programme` | `programmeItems` (repeatable component — `time`, `title`, `description`); the section heading is hardcoded in `ProgrammeSection.jsx` |
 
 The `programme` single type must stay published with `find` enabled under
 **Settings → Users & Permissions → Roles → Public** so the site can read it

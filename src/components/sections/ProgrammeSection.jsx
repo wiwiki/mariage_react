@@ -2,14 +2,14 @@ import { Skeleton } from '../Skeleton'
 
 const SKELETON_ROWS = 5
 
+// The heading is hardcoded so guests immediately see what this section is
+// while the timeline loads — only the schedule items come from Strapi.
 function ProgrammeSection({ content, loading }) {
   return (
     <section className="program center" id="programme">
       <div className="wrap">
-        <p className="eyebrow">{loading ? <Skeleton width="10ch" onDark /> : content.programmeEyebrow}</p>
-        <h2 className="section-title">
-          {loading ? <Skeleton width="14ch" onDark /> : content.programmeTitle}
-        </h2>
+        <p className="eyebrow">Le déroulé</p>
+        <h2 className="section-title">Programme de la journée</h2>
         <div className="timeline">
           {loading
             ? Array.from({ length: SKELETON_ROWS }, (_, i) => (
