@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useWeddingContent } from '../hooks/useWeddingContent'
+import { useProgramme } from '../hooks/useProgramme'
 import SplashScreen from '../components/SplashScreen'
 import HeroSection from '../components/sections/HeroSection'
 import StorySection from '../components/sections/StorySection'
@@ -42,7 +42,10 @@ function scrollToSection(e, id) {
 }
 
 function LandingPage() {
-  const { content, status } = useWeddingContent()
+  // Only the programme is still fetched from Strapi — every other section is
+  // hardcoded. The splash covers that single fetch (and the cold-starting
+  // backend behind it) exactly as it used to cover the whole page.
+  const { content, status } = useProgramme()
   const splashOpen = useSplash(status)
   const loading = status === 'loading'
 
@@ -58,11 +61,11 @@ function LandingPage() {
       </nav>
 
       <HeroSection />
-      <StorySection content={content} loading={loading} />
+      <StorySection />
       <ProgrammeSection content={content} loading={loading} />
-      <VenueSection content={content} loading={loading} />
-      <RsvpSection content={content} loading={loading} />
-      <SiteFooter content={content} loading={loading} />
+      <VenueSection />
+      <RsvpSection />
+      <SiteFooter />
     </>
   )
 }
