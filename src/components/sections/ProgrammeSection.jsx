@@ -3,7 +3,7 @@ import { Skeleton } from '../Skeleton'
 const SKELETON_ROWS = 5
 
 // The heading is hardcoded so guests immediately see what this section is
-// while the timeline loads — only the schedule items come from Strapi.
+// while the timeline loads — only the schedule items come from the backend.
 function ProgrammeSection({ content, loading }) {
   return (
     <section className="program center" id="programme">

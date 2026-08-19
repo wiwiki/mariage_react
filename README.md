@@ -4,9 +4,9 @@ Vite + React site with two parts:
 
 - **Landing page** (`/`) — all text and photos are hardcoded in the section
   components (the copy is final), except the **programme** section, which is
-  pulled from the Strapi `programme` single type at runtime with a hardcoded
+  pulled from the Supabase `programme` table at runtime with a hardcoded
   fallback (`src/content/defaultProgramme.js`) — so the page never depends on
-  Strapi being reachable to render.
+  the backend being reachable to render.
 - **Smart RSVP flow** (`/rsvp`) — guests enter a 6-character household code (uppercase letters and digits, e.g. 58FXFP), then
   fill in an editable guest form (attendance, meal choice, allergies, message
   to the couple) or see a locked read-only summary if they already responded.
@@ -35,37 +35,88 @@ npm install
 npm run dev
 ```
 
-`VITE_STRAPI_URL` (see `.env.development` / `.env.production`) points at the
-Strapi backend used for content, media, and the RSVP API.
+Two env vars (see `.env.development` / `.env.production`) point at the Supabase
+project that serves both the programme content and the RSVP API:
 
-## Managing text content in Strapi
-
-Only the **programme** section is still CMS-driven. The frontend fetches one
-single type at `GET {VITE_STRAPI_URL}/api/programme?populate=*`; any field
-left empty falls back to the default copy in
-`src/content/defaultProgramme.js`.
-
-| Single type (API ID) | Fields |
+| Variable | Purpose |
 |---|---|
-| `programme` | `programmeItems` (repeatable component — `time`, `title`, `description`); the section heading is hardcoded in `ProgrammeSection.jsx` |
+| `VITE_SUPABASE_URL` | Project URL |
+| `VITE_SUPABASE_KEY` | Publishable (`sb_publishable_…`) key |
 
-The `programme` single type must stay published with `find` enabled under
-**Settings → Users & Permissions → Roles → Public** so the site can read it
-without auth.
+The publishable key is designed to ship to browsers and is deliberately
+committed — row-level security is what protects the data, not key secrecy.
+`.env.production` is committed and read at build time, so there are no GitHub
+secrets to configure for a deploy.
+
+### ⚠️ Local dev talks to the live production database
+
+There is no local backend. Both env files point at the same hosted project, so
+`npm run dev` reads and writes the real wedding data.
+
+A submitted RSVP is irreversible from the UI: `/submit` flips that household's
+`rsvp_status` to `confirmed`, writes their guest list, and every later attempt
+returns `409` — the real guest is locked out and only manual SQL can undo it.
+
+So **only ever submit with the dedicated `TEST01` row**, and never type a code
+you did not create yourself. `/verify` is read-only and safe on any code. To
+exercise the 409 path, submit `TEST01` twice rather than reusing a real code.
+
+```sql
+-- create it once
+insert into invitations (code, household_name, max_guests, rsvp_status)
+values ('TEST01', 'Test household', 4, 'pending');
+
+-- reset between runs
+update invitations set
+  rsvp_status = 'pending', guests = '[]'::jsonb, responded_at = null,
+  message_to_couple = null, count_adult = 0, count_child = 0, count_baby = 0,
+  count_standard = 0, count_vegetarian = 0, count_vegan = 0, count_gluten_free = 0
+where code = 'TEST01';
+```
+
+## Managing text content
+
+Only the **programme** section is still backend-driven. The frontend reads one
+row via PostgREST at `GET {VITE_SUPABASE_URL}/rest/v1/programme?select=*`; if
+the request fails or the table is empty, the default copy in
+`src/content/defaultProgramme.js` is shown instead.
+
+| Table | Columns |
+|---|---|
+| `programme` | `programme_items` (jsonb array of `{time, title, description}`); `programme_eyebrow` and `programme_title` exist but are unread — the section heading is hardcoded in `ProgrammeSection.jsx` |
+
+Postgres columns are snake_case and the app is camelCase. `src/lib/supabase.js`
+is the **only** file that knows about that: it maps `programme_items` →
+`programmeItems` on the way out, so nothing downstream — including the
+`sessionStorage` cache — ever sees a snake_case key. The cache key is versioned
+(`programme-content-v2`) so a shape change can't hand a returning visitor a
+stale payload.
+
+The `programme` table needs a row-level security policy allowing anonymous
+`select` so the site can read it without auth. `invitations` deliberately has
+no such policy: it is still reachable through PostgREST, but RLS filters every
+row out, so the request returns `200 []` and no guest data ever reaches a client
+key. Granting `invitations` a permissive select policy would expose every
+household at once — all RSVP access must stay behind the Edge Function.
 
 Every other section (hero, story, venue, RSVP intro, footer) is hardcoded in
 its component under `src/components/sections/` — editing that copy is a code
-change, not a Strapi edit. The other Strapi single types (`hero-banner`,
-`story`, `venue`, `rsvp`, `footer`) are no longer read by the site.
+change. All photos are bundled locally by Vite, so no image depends on an
+external host.
 
 ## RSVP flow
 
-Two Strapi custom routes back the `/rsvp` flow:
+An `rsvp` Supabase Edge Function backs the `/rsvp` flow. It is the only way in:
+`invitations` is not readable by any client key, and the function never returns
+`code` or `invite_link`.
 
 | Method | Route | Purpose |
 |---|---|---|
-| POST | `/api/rsvp/verify` | `{ code }` → `{ invitation, guests }`, or `404 { error: "invalid_code" }` |
-| POST | `/api/rsvp/submit` | `{ code, guests[], message }` → `{ success: true }`, or `409 { error: "already_responded" }` if the household already responded |
+| POST | `/functions/v1/rsvp/verify` | `{ code }` → `{ invitation, guests }`, or `404 { error: "invalid_code" }` |
+| POST | `/functions/v1/rsvp/submit` | `{ code, guests[], message }` → `{ success: true }`, `404 { error: "invalid_code" }`, or `409 { error: "already_responded" }` if the household already responded |
+
+`invitation` carries `householdName`, `maxGuests`, `rsvpStatus`,
+`messageToCouple`, `respondedAt` and the seven `count*` fields, all camelCase.
 
 The verified code + invitation/guests are kept in `sessionStorage` (see
 `src/lib/rsvpSession.js`) between the code-entry step and the form step, and
@@ -74,10 +125,23 @@ retyping the code, but nothing survives closing the tab.
 
 Whether the form is editable or shown as a locked summary is driven by
 `invitation.rsvpStatus` (`"pending"` vs anything else) — note this is
-`rsvpStatus` on the wire, not `status` as an earlier version of the spec for
-this feature described.
+`rsvpStatus` on the wire, not `status`.
 
-**Known backend gap:** the `message` field sent to `/api/rsvp/submit` is
-accepted (`200 { success: true }`) but is not currently persisted to
-`invitation.messageToCouple` — confirmed by submitting and re-verifying the
-same code. This needs a fix on the Strapi side; nothing to change here.
+Submitting is a **full replace**: every used slot is sent as a plain object and
+becomes the household's complete guest list. `/submit` rejects an
+already-confirmed household *before* writing, so a rejected retry cannot clear
+an existing guest list.
+
+Meal choices are `standard`, `vegetarian` and `vegan` (`MEAL_OPTIONS` in
+`RsvpForm.jsx`), matching the `count_standard` / `count_vegetarian` /
+`count_vegan` columns. Guests describe actual allergies in the separate
+free-text "Allergies / restrictions" field, which is stored per guest rather
+than counted. Age groups (`adult`, `child`, `baby`) feed `count_adult` /
+`count_child` / `count_baby`, and only *attending* guests are counted.
+
+## Deploying
+
+`.github/workflows/deploy.yml` builds and publishes to GitHub Pages on every
+push to `main`, so a merge goes live immediately. The Pages source must stay set
+to **GitHub Actions** — pointing it at a branch instead serves the raw repo and
+the site renders blank.
