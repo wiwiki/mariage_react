@@ -8,7 +8,6 @@ const MEAL_OPTIONS = [
   { value: 'standard', label: 'Standard' },
   { value: 'vegetarian', label: 'Végétarien' },
   { value: 'vegan', label: 'Végan' },
-  { value: 'allergie', label: 'Allergies particulières' },
 ]
 
 const MAX_GUESTS = 10

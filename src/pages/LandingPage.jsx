@@ -42,7 +42,7 @@ function scrollToSection(e, id) {
 }
 
 function LandingPage() {
-  // Only the programme is still fetched from Strapi — every other section is
+  // Only the programme is still fetched from Supabase — every other section is
   // hardcoded. The splash covers that single fetch (and the cold-starting
   // backend behind it) exactly as it used to cover the whole page.
   const { content, status } = useProgramme()

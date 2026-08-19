@@ -1,6 +1,6 @@
-// Fallback programme schedule — used until the Strapi `programme` single
-// type responds, or if it's unreachable/empty. Mirrors the published Strapi
-// content as of 2026-07-12 so an unreachable backend still shows the real
+// Fallback programme schedule — used until the Supabase `programme` row
+// responds, or if it's unreachable/empty. Mirrors the live
+// row content as of 2026-08-19 so an unreachable backend still shows the real
 // schedule. The section heading (and every other section) is hardcoded in
 // its component.
 const defaultProgramme = {
