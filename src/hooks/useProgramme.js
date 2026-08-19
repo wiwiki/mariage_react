@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
-import { fetchProgramme } from '../lib/strapi'
+import { fetchProgramme } from '../lib/supabase'
 import defaultProgramme from '../content/defaultProgramme'
 
 // Fetched programme content is cached in sessionStorage (plus this
 // module-level mirror) so navigating between the landing page and the RSVP
-// flow doesn't refetch on every mount. The TTL keeps content edits in Strapi
-// from being invisible for a whole browsing session.
-const CACHE_KEY = 'programme-content-v1'
+// flow doesn't refetch on every mount. The TTL keeps content edits in the
+// database from being invisible for a whole browsing session. The key is
+// versioned so a backend swap can't hand a returning visitor a stale shape.
+const CACHE_KEY = 'programme-content-v2'
 const CACHE_TTL_MS = 10 * 60 * 1000
 
 let memoryCache = null
@@ -34,8 +35,8 @@ function saveCachedContent(data) {
   }
 }
 
-// Overlays the Strapi schedule onto the default copy, so an empty or
-// unpublished entry just keeps showing the default items. The section
+// Overlays the fetched schedule onto the default copy, so an empty or
+// missing row just keeps showing the default items. The section
 // heading is hardcoded in ProgrammeSection, so only the items matter here.
 function mergeContent(base, remote) {
   if (!remote) return base
@@ -78,7 +79,7 @@ export function useProgramme() {
       })
       .catch((err) => {
         if (err.name !== 'AbortError') {
-          console.error('Falling back to default programme — Strapi fetch failed:', err)
+          console.error('Falling back to default programme — Supabase fetch failed:', err)
           setState((current) => ({ ...current, status: 'ready' }))
         }
       })
