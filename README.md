@@ -70,7 +70,7 @@ values ('TEST01', 'Test household', 4, 'pending');
 update invitations set
   rsvp_status = 'pending', guests = '[]'::jsonb, responded_at = null,
   message_to_couple = null, count_adult = 0, count_child = 0, count_baby = 0,
-  count_standard = 0, count_vegetarian = 0, count_vegan = 0, count_gluten_free = 0
+  count_standard = 0, count_vegetarian = 0, count_vegan = 0
 where code = 'TEST01';
 ```
 
@@ -110,13 +110,17 @@ An `rsvp` Supabase Edge Function backs the `/rsvp` flow. It is the only way in:
 `invitations` is not readable by any client key, and the function never returns
 `code` or `invite_link`.
 
+Its source is `supabase/functions/rsvp/index.ts`. That file is a **copy for
+review** — Supabase serves the separately deployed version, so editing it here
+changes nothing until you redeploy the function. Deploy after merging.
+
 | Method | Route | Purpose |
 |---|---|---|
 | POST | `/functions/v1/rsvp/verify` | `{ code }` → `{ invitation, guests }`, or `404 { error: "invalid_code" }` |
 | POST | `/functions/v1/rsvp/submit` | `{ code, guests[], message }` → `{ success: true }`, `404 { error: "invalid_code" }`, or `409 { error: "already_responded" }` if the household already responded |
 
 `invitation` carries `householdName`, `maxGuests`, `rsvpStatus`,
-`messageToCouple`, `respondedAt` and the seven `count*` fields, all camelCase.
+`messageToCouple`, `respondedAt` and the six `count*` fields, all camelCase.
 
 The verified code + invitation/guests are kept in `sessionStorage` (see
 `src/lib/rsvpSession.js`) between the code-entry step and the form step, and
