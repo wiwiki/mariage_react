@@ -13,8 +13,7 @@ function RsvpSection() {
           de votre présence
         </h2>
         <p>
-          Merci de confirmer votre présence avant le 15 septembre 2026. Pour toute question
-          concernant l’hébergement ou le voyage, n’hésitez pas à nous écrire. De plus amples
+          Pour toute question concernant l’hébergement ou le voyage, n’hésitez pas à nous écrire. De plus amples
           informations vous seront communiquées dans les mois à venir.
         </p>
         <Link className="btn" to="/rsvp">
