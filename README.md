@@ -76,7 +76,31 @@ where code = 'TEST01';
 
 ## Managing text content
 
-Only the **programme** section is still backend-driven. The frontend reads one
+Two things are backend-driven: the **programme** section and the list of
+places on the **Où dormir** page.
+
+### Où dormir (`hebergements` table)
+
+One row per place; add, edit or hide rows in the Supabase Table Editor and the
+site picks them up within 10 minutes (session cache), with no deploy.
+
+| Column | Meaning |
+|---|---|
+| `category` | Section: `proche`, `agritourisme` or `chic` |
+| `sort_order` | Order inside the section (seeded 10, 20, 30… to leave gaps) |
+| `name`, `url`, `place`, `drive`, `rooms`, `price`, `note`, `email` | Free text shown as is; only `name` is required |
+| `phones` | Text array, e.g. `{"+39 0131 776218"}` |
+| `estimated` | Adds the † "no published rate" marker to the price |
+| `visible` | Untick to hide a place without deleting it |
+
+Section titles, intros and the on-site château block stay in
+`src/content/hebergements.js`, whose list is also the fallback when the request
+fails or the table is empty. Anonymous clients can only read visible rows. The
+table definition is in `supabase/migrations/`.
+
+### Programme
+
+The frontend reads one
 row via PostgREST at `GET {VITE_SUPABASE_URL}/rest/v1/programme?select=*`; if
 the request fails or the table is empty, the default copy in
 `src/content/defaultProgramme.js` is shown instead.
