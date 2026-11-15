@@ -16,6 +16,33 @@ export const supabaseHeaders = {
   Authorization: `Bearer ${SUPABASE_KEY}`,
 }
 
+// Row-level security only returns the rows flagged `visible`.
+const HEBERGEMENTS_ENDPOINT = `${SUPABASE_URL}/rest/v1/hebergements?select=*&order=sort_order.asc,id.asc`
+
+export async function fetchHebergements(signal) {
+  const res = await fetch(HEBERGEMENTS_ENDPOINT, { headers: supabaseHeaders, signal })
+
+  if (!res.ok) {
+    throw new Error(`Request failed with status ${res.status}`)
+  }
+
+  const rows = await res.json()
+  return rows.map((row) => ({
+    id: row.id,
+    category: row.category,
+    name: row.name,
+    url: row.url,
+    place: row.place,
+    drive: row.drive,
+    rooms: row.rooms,
+    price: row.price,
+    estimated: row.estimated,
+    note: row.note,
+    phones: row.phones ?? [],
+    email: row.email,
+  }))
+}
+
 export async function fetchProgramme(signal) {
   const res = await fetch(PROGRAMME_ENDPOINT, { headers: supabaseHeaders, signal })
 

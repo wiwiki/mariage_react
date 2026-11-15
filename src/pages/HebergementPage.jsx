@@ -1,6 +1,8 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { categories, onSite } from '../content/hebergements'
+import { onSite } from '../content/hebergements'
+import { useHebergements } from '../hooks/useHebergements'
+import { Skeleton } from '../components/Skeleton'
 import SiteFooter from '../components/sections/SiteFooter'
 
 const tel = (phone) => `tel:${phone.replace(/\s/g, '')}`
@@ -59,7 +61,38 @@ function PlaceRow({ place }) {
   )
 }
 
+// Placeholder rows while the list is being fetched.
+function SkeletonRow() {
+  return (
+    <tr>
+      <td className="stay-name">
+        <Skeleton width="55%" height="1.2em" />
+        <span className="stay-note">
+          <Skeleton width="85%" height="0.9em" />
+        </span>
+      </td>
+      <td data-label="En voiture">
+        <Skeleton width="7ch" height="0.9em" />
+      </td>
+      <td data-label="Chambres">
+        <Skeleton width="3ch" height="0.9em" />
+      </td>
+      <td data-label="Prix / nuit">
+        <Skeleton width="9ch" height="0.9em" />
+      </td>
+      <td data-label="Contact">
+        <Skeleton width="13ch" height="0.9em" />
+      </td>
+    </tr>
+  )
+}
+
 function HebergementPage() {
+  const { categories, status } = useHebergements()
+  const loading = status === 'loading'
+  // A section whose places were all removed or hidden in the database is skipped.
+  const shownCategories = loading ? categories : categories.filter((category) => category.places.length > 0)
+
   // HashRouter keeps the scroll position of the page we came from.
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' })
@@ -101,11 +134,11 @@ function HebergementPage() {
             </p>
           </aside>
 
-          {categories.map((category) => (
+          {shownCategories.map((category) => (
             <section className="stay-category" key={category.id} aria-labelledby={`stay-${category.id}`}>
               <h2 id={`stay-${category.id}`}>{category.title}</h2>
               <p className="stay-intro">{category.intro}</p>
-              <table className="stay-table">
+              <table className="stay-table" aria-busy={loading}>
                 <thead>
                   <tr>
                     <th scope="col">Établissement</th>
@@ -116,9 +149,9 @@ function HebergementPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {category.places.map((place) => (
-                    <PlaceRow key={place.name} place={place} />
-                  ))}
+                  {loading
+                    ? [0, 1, 2].map((i) => <SkeletonRow key={i} />)
+                    : category.places.map((place) => <PlaceRow key={place.id ?? place.name} place={place} />)}
                 </tbody>
               </table>
             </section>
