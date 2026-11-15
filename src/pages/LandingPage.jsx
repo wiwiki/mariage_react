@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useProgramme } from '../hooks/useProgramme'
 import SplashScreen from '../components/SplashScreen'
 import HeroSection from '../components/sections/HeroSection'
@@ -57,6 +58,7 @@ function LandingPage() {
         <a href="#histoire" onClick={(e) => scrollToSection(e, 'histoire')}>Histoire</a>
         <a href="#programme" onClick={(e) => scrollToSection(e, 'programme')}>Programme</a>
         <a href="#lieu" onClick={(e) => scrollToSection(e, 'lieu')}>Lieu</a>
+        <Link to="/hebergement">Où dormir</Link>
         <a href="#rsvp" onClick={(e) => scrollToSection(e, 'rsvp')}>RSVP</a>
       </nav>
 

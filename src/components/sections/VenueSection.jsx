@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import SmartImage from '../SmartImage'
 import venuePhoto from '../../assets/venue-castello.webp'
 
@@ -33,9 +34,11 @@ function VenueSection() {
 
             <span className="label">Hébergement</span>
             <p>
-              De nombreuses petites auberges et hôtels sont disponibles à proximité du lieu.
-              Nous vous transmettrons une liste d’hébergements recommandés dans les prochains
-              mois, une fois le nombre d’invités confirmé.
+              Le château compte quelques chambres, et de nombreuses petites auberges, agritourismes et
+              hôtels se trouvent à proximité.{' '}
+              <Link className="text-link" to="/hebergement">
+                Voir les hébergements recommandés
+              </Link>
             </p>
 
             <span className="label">Contact du lieu</span>

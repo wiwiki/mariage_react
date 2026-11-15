@@ -8,6 +8,12 @@ function RsvpConfirmation() {
           <p className="eyebrow">Merci</p>
           <h1 className="section-title">À très vite !</h1>
           <p className="lede">Votre réponse a bien été enregistrée. Merci d'avoir pris le temps de répondre.</p>
+          <p className="next-step">
+            Prochaine étape : réservez votre hébergement.{' '}
+            <Link className="text-link" to="/hebergement">
+              Voir où dormir
+            </Link>
+          </p>
           <Link className="btn btn-light" to="/">
             Retour au mariage
           </Link>
