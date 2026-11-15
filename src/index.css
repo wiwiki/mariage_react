@@ -719,3 +719,143 @@ nav a:focus-visible {
   .skeleton, .splash-bar span { animation: none; }
   .splash { transition: none; }
 }
+
+/* ---------- OÙ DORMIR (HÉBERGEMENT) ---------- */
+.stay-page { padding-top: clamp(2.5rem, 6vw, 4rem); }
+.stay-wrap { max-width: 1040px; }
+
+.stay-facts {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 2rem;
+}
+.stay-facts li {
+  border: 1px solid var(--beige);
+  background: var(--cream);
+  padding: 0.35rem 1rem;
+  font-size: 0.9rem;
+  color: var(--olive-dk);
+}
+
+.stay-onsite {
+  margin-top: 3rem;
+  background: var(--olive);
+  color: var(--cream);
+  padding: clamp(1.6rem, 5vw, 2.4rem);
+}
+.stay-onsite .eyebrow { color: var(--beige); }
+.stay-onsite h2 { font-size: clamp(1.7rem, 4.5vw, 2.2rem); margin: 0.3rem 0 0.6rem; }
+.stay-onsite p { max-width: 720px; }
+.stay-onsite .stay-price { color: var(--cream); margin-top: 0.5rem; }
+.stay-onsite-contact { margin-top: 0.8rem; font-size: 0.95rem; opacity: 0.92; }
+
+/* Nested <section>s inherit the big landing-page section padding — reset it */
+.stay-category { padding: 0; margin-top: clamp(3rem, 7vw, 4.5rem); }
+.stay-category h2 { font-size: clamp(1.8rem, 5vw, 2.4rem); color: var(--charcoal); }
+.stay-intro { color: var(--olive-dk); margin-bottom: 1.2rem; }
+
+.stay-table { width: 100%; border-collapse: collapse; font-size: 0.98rem; }
+.stay-table th {
+  text-align: left;
+  font-weight: 400;
+  font-size: 0.66rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--olive);
+  padding: 0.6rem 0.9rem 0.6rem 0;
+  border-bottom: 1px solid var(--olive);
+  white-space: nowrap;
+}
+.stay-table td {
+  padding: 1rem 0.9rem 1rem 0;
+  border-bottom: 1px solid var(--beige);
+  vertical-align: top;
+}
+.stay-table td:not(.stay-name) { white-space: nowrap; }
+.stay-name > a, .stay-name > span:first-child {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem;
+  line-height: 1.25;
+  color: var(--charcoal);
+}
+.stay-name > a { text-decoration-color: var(--sage); text-underline-offset: 3px; }
+.stay-name > a:hover { color: var(--olive); }
+.stay-place {
+  display: block;
+  font-size: 0.85rem;
+  letter-spacing: 0.03em;
+  color: var(--olive);
+}
+.stay-note { display: block; font-size: 0.95rem; line-height: 1.5; margin-top: 0.25rem; }
+.stay-price { color: var(--olive-dk); font-weight: 500; }
+.stay-contact a { display: block; text-underline-offset: 3px; }
+.stay-contact a:hover, .stay-onsite a:hover { opacity: 0.75; }
+
+.stay-footnotes {
+  margin-top: 3rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--beige);
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--olive-dk);
+}
+.stay-footnotes p + p { margin-top: 0.6rem; }
+
+/* Inline text link on light backgrounds (Lieu section, RSVP thank-you) */
+.text-link {
+  color: var(--olive);
+  text-underline-offset: 4px;
+  text-decoration-color: var(--sage);
+}
+.text-link:hover { color: var(--olive-dk); }
+.rsvp-card .next-step { margin-top: 1.6rem; font-size: 1rem; }
+
+.stay-page a:focus-visible,
+.text-link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+/* Phones: each place becomes a card, each cell a labelled line */
+@media (max-width: 760px) {
+  .stay-table thead { display: none; }
+  .stay-table, .stay-table tbody, .stay-table tr, .stay-table td { display: block; }
+  .stay-table tr {
+    background: #fffdf9;
+    border: 1px solid var(--beige);
+    padding: 1.1rem 1.1rem 0.9rem;
+    margin-bottom: 0.9rem;
+  }
+  .stay-table td { border: 0; padding: 0; }
+  .stay-table td:not(.stay-name) {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 0.5rem;
+    margin-top: 0.5rem;
+    border-top: 1px solid rgba(221, 212, 194, 0.7);
+    white-space: normal;
+    text-align: right;
+  }
+  .stay-table td[data-label]::before {
+    content: attr(data-label);
+    flex: none;
+    font-size: 0.64rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--olive);
+    padding-top: 0.3rem;
+    text-align: left;
+  }
+  .stay-contact a { padding: 0.15rem 0; }
+  .stay-contact div { min-width: 0; overflow-wrap: anywhere; }
+}
+
+/* Five menu items: tighten so they still fit on one line on small phones */
+@media (max-width: 480px) {
+  nav { gap: 0.75rem; padding-left: 0.6rem; padding-right: 0.6rem; }
+  nav a { font-size: 0.6rem; letter-spacing: 0.14em; white-space: nowrap; }
+}

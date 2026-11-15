@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 import LandingPage from './pages/LandingPage'
+import HebergementPage from './pages/HebergementPage'
 import RsvpCodeEntry from './pages/rsvp/RsvpCodeEntry'
 import RsvpForm from './pages/rsvp/RsvpForm'
 import RsvpConfirmation from './pages/rsvp/RsvpConfirmation'
@@ -8,6 +9,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
+      <Route path="/hebergement" element={<HebergementPage />} />
       <Route path="/rsvp" element={<RsvpCodeEntry />} />
       <Route path="/rsvp/form" element={<RsvpForm />} />
       <Route path="/rsvp/merci" element={<RsvpConfirmation />} />
